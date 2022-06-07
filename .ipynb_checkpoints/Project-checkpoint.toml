@@ -1,0 +1,4 @@
+name = "QuantumCliffordCUDA"
+uuid = "12889155-e8c6-4650-ac42-545c261a5b72"
+authors = ["Torque (Tareq) El Dandachi <tareqdandachi@gmail.com>"]
+version = "0.1.0"
