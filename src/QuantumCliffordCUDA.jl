@@ -8,12 +8,6 @@ import QuantumClifford
 
 using CUDA
 
-function test(l::CuArray) where T where L where M
-    println("HELLO!")
-    println(L)
-    println(T)
-end
-
 # grid atomic implementation
 function comm_CUDA(l::AbstractArray, r::AbstractArray, out::AbstractArray)
     
@@ -31,19 +25,13 @@ function comm_CUDA(l::AbstractArray, r::AbstractArray, out::AbstractArray)
         index = 2 * d * (thread-1) + 1
         @inbounds if index <= elements && offset+index+d <= len
             
-            # @cuprintln "block $block, thread $thread, $d, $offset = "
-            
             if (d==1)
                 
                 if (offset+index+d == len+1)
                     
-                    # @cuprintln "thread $thread, $d: $index, $(index+d) = "
-                    
                     l[offset+index] = ((l[offset+index+len] & r[offset+index]) ⊻ (l[offset+index] & r[offset+index+len]))
                     
                 else
-                    
-                    # @cuprintln "thread $thread, $d: $index, $(index+d) = (($(l[index+len]) & $(r[index])) ⊻ ($(l[index]) & $(r[index+len]))) ⊻ (($(l[index+len+d]) & $(r[index+d])) ⊻ ($(l[index+d]) & $(r[index+len+d]))) = $((l[index+len] & r[index]) ⊻ (l[index] & r[index+len])) ⊻ $((l[index+len+d] & r[index+d]) ⊻ (l[index+d] & r[index+len+d])) = $(((l[index+len] & r[index]) ⊻ (l[index] & r[index+len])) ⊻ ((l[index+len+d] & r[index+d]) ⊻ (l[index+d] & r[index+len+d])))"
                 
                     l[offset+index] = ((l[offset+index+len] & r[offset+index]) ⊻ (l[offset+index] & r[offset+index+len])) ⊻
                                       ((l[offset+index+len+d] & r[offset+index+d]) ⊻ (l[offset+index+d] & r[offset+index+len+d]))
@@ -55,8 +43,6 @@ function comm_CUDA(l::AbstractArray, r::AbstractArray, out::AbstractArray)
                 if (offset+index+d >= len)
                     
                 else
-            
-                    # @cuprintln "thread $thread, $d: $index, $(index+d) = $(l[index]) ⊻ $(l[index+d]) = $(l[index] ⊻ l[index+d])"
 
                     l[offset+index] = l[offset+index] ⊻ l[offset+index+d]
                     
@@ -71,9 +57,7 @@ function comm_CUDA(l::AbstractArray, r::AbstractArray, out::AbstractArray)
     
     # atomic reduction of this block's value
     if thread == 1
-        # @cuprintln "$(out[]) XOR $(l[offset + 1])"
         CUDA.@atomic out[] = out[] ⊻ l[offset + 1]
-        # CUDA.@atomic k[] = count_ones(k[])
     end
     
     return
@@ -89,7 +73,7 @@ end
     
     nblocks = cld(length(l), 4*nthreads)
     
-    out = CuArray([3])
+    out = CuArray([0])
     
     @cuda threads=nthreads blocks=nblocks comm_CUDA(l, r, out)
 

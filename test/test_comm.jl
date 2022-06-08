@@ -69,4 +69,4 @@ end
 
 small_test()
 large_test()
-weird_count()
+# weird_count()

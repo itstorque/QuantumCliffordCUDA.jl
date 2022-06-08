@@ -3,9 +3,10 @@ using QuantumClifford
 using QuantumCliffordCUDA
 
 using Test
+using BenchmarkTools
 
 test_sizes = [] # incorporate this later...
-test_repeat_count = 10
+test_repeat_count = 100
 
 function doset(descr)
     if length(ARGS) == 0
@@ -20,3 +21,4 @@ function doset(descr)
 end
 
 doset("gpu_comm")             && include("./test_comm.jl")
+doset("gpu_comm_speed")             && include("./test_comm_speed.jl")
